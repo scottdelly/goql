@@ -8,7 +8,7 @@ import (
 
 	"github.com/graphql-go/graphql"
 
-	"scottdelly/goql/models"
+	"github.com/scottdelly/goql/models"
 )
 
 type GQLApi struct {
@@ -56,10 +56,47 @@ func (g *GQLApi) startGQL() graphql.Schema {
 			Name: "User",
 			Fields: graphql.Fields{
 				"id": &graphql.Field{
-					Type: graphql.String,
+					Type: graphql.Int,
 				},
 				"name": &graphql.Field{
 					Type: graphql.String,
+				},
+				"email": &graphql.Field{
+					Type: graphql.String,
+				},
+			},
+		},
+	)
+
+	var songType = graphql.NewObject(
+		graphql.ObjectConfig{
+			Name: "Song",
+			Fields: graphql.Fields{
+				"id": &graphql.Field{
+					Type: graphql.Int,
+				},
+				"name": &graphql.Field{
+					Type: graphql.String,
+				},
+				"duration": &graphql.Field{
+					Type: graphql.Float,
+				},
+			},
+		},
+	)
+
+	var artistType = graphql.NewObject(
+		graphql.ObjectConfig{
+			Name: "Artist",
+			Fields: graphql.Fields{
+				"id": &graphql.Field{
+					Type: graphql.Int,
+				},
+				"name": &graphql.Field{
+					Type: graphql.String,
+				},
+				"like_count": &graphql.Field{
+					Type: graphql.Int,
 				},
 			},
 		},

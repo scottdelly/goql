@@ -5,8 +5,8 @@ import (
 
 	"github.com/spf13/viper"
 
-	"scottdelly/goql/api"
-	"scottdelly/goql/db_client"
+	"github.com/scottdelly/goql/api"
+	"github.com/scottdelly/goql/db_client"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 
 	host := viper.GetString("host")
 
-	db := new(db_client.DB)
+	db := new(db_client.DBClient)
 	db.Start()
 	gqlAPI := new(api.GQLApi)
 	gqlAPI.Start(host)

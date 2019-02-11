@@ -2,12 +2,31 @@
 
 
 [[projects]]
+  digest = "1:166438587ed45ac211dab8a3ecebf4fa0c186d0db63430fb9127bbc2e5fcdc67"
+  name = "github.com/cenkalti/backoff"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1e4cf3da559842a91afcb6ea6141451e6c30c618"
+  version = "v2.1.1"
+
+[[projects]]
   digest = "1:abeb38ade3f32a92943e5be54f55ed6d6e3b6602761d74b4aab4c9dd45c18abd"
   name = "github.com/fsnotify/fsnotify"
   packages = ["."]
   pruneopts = "UT"
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
   version = "v1.4.7"
+
+[[projects]]
+  digest = "1:0594af97b2f4cec6554086eeace6597e20a4b69466eb4ada25adf9f4300dddd2"
+  name = "github.com/garyburd/redigo"
+  packages = [
+    "internal",
+    "redis",
+  ]
+  pruneopts = "UT"
+  revision = "a69d19351219b6dd56f274f96d85a7014a2ec34e"
+  version = "v1.6.0"
 
 [[projects]]
   digest = "1:b1b6d04c3d4288719efc24ae4e52d24808530f5d28b1a9e4897ea5ad047b6124"
@@ -60,12 +79,63 @@
   version = "v1.2.0"
 
 [[projects]]
+  digest = "1:8ef506fc2bb9ced9b151dafa592d4046063d744c646c1bbe801982ce87e4bc24"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+  ]
+  pruneopts = "UT"
+  revision = "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:c568d7727aa262c32bdf8a3f7db83614f7af0ed661474b24588de635c20024c7"
   name = "github.com/magiconair/properties"
   packages = ["."]
   pruneopts = "UT"
   revision = "c2353362d570a7bfa228149c62842019201cfb71"
   version = "v1.8.0"
+
+[[projects]]
+  digest = "1:0f96ec4151a24d7bfd4298fc13cc320a000e31b4e5431cf88e3ffc961db846fd"
+  name = "github.com/mattn/go-colorable"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "efa589957cd060542a26d2dd7832fd6a6c6c3ade"
+  version = "v0.1.0"
+
+[[projects]]
+  digest = "1:0981502f9816113c9c8c4ac301583841855c8cf4da8c72f696b3ebedf6d0e4e5"
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "6ca4dbf54d38eea1a992b3c722a76a5d1c4cb25c"
+  version = "v0.0.4"
+
+[[projects]]
+  branch = "master"
+  digest = "1:2b32af4d2a529083275afc192d1067d8126b578c7a9613b26600e4df9c735155"
+  name = "github.com/mgutz/ansi"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9520e82c474b0a04dd04f8a40959027271bab992"
+
+[[projects]]
+  digest = "1:17bc403348b60bd01bfd2e507fcb23463e76f4b1f433d50b0872b8219df1250d"
+  name = "github.com/mgutz/logxi"
+  packages = ["v1"]
+  pruneopts = "UT"
+  revision = "aebf8a7d67ab4625e0fd4a665766fef9a709161b"
+  version = "v1"
+
+[[projects]]
+  digest = "1:c182b8d45f3687b6c148eec6de90cda533ef58ee9e55a917a466597deec4878f"
+  name = "github.com/mgutz/str"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "968bf66e3da857419e4f6e71b2d5c9ae95682dc4"
+  version = "v1.2.0"
 
 [[projects]]
   digest = "1:53bc4cd4914cd7cd52139990d5170d6dc99067ae31c56530621b18b35fc30318"
@@ -81,6 +151,22 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "c01d1270ff3e442a8a57cddc1c92dc1138598194"
+  version = "v1.2.0"
+
+[[projects]]
+  digest = "1:808cdddf087fb64baeae67b8dfaee2069034d9704923a3cb8bd96a995421a625"
+  name = "github.com/pmylund/go-cache"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a3647f8e31d79543b2d0f0ae2fe5c379d72cedc0"
+  version = "v2.1.0"
+
+[[projects]]
+  digest = "1:274f67cb6fed9588ea2521ecdac05a6d62a8c51c074c1fccc6a49a40ba80e925"
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
   version = "v1.2.0"
 
 [[projects]]
@@ -150,6 +236,21 @@
   version = "v0.3.0"
 
 [[projects]]
+  branch = "v2"
+  digest = "1:e45c5754c8dcbdcf93fcade45fbea80cd0af64a0376f8661998a20ceaf926dda"
+  name = "gopkg.in/mgutz/dat.v2"
+  packages = [
+    "common",
+    "dat",
+    "kvs",
+    "postgres",
+    "reflectx",
+    "sqlx-runner",
+  ]
+  pruneopts = "UT"
+  revision = "d76e4f81c4ef6aac98aca46f9f1f38a54d06fd7e"
+
+[[projects]]
   digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -162,8 +263,9 @@
   analyzer-version = 1
   input-imports = [
     "github.com/graphql-go/graphql",
-    "github.com/jmoiron/sqlx",
     "github.com/spf13/viper",
+    "gopkg.in/mgutz/dat.v2/dat",
+    "gopkg.in/mgutz/dat.v2/sqlx-runner",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
