@@ -115,6 +115,24 @@ func (g *GQLApi) startGQL() graphql.Schema {
 						return response, err
 					},
 				},
+				"song": &graphql.Field{
+					Type: songType,
+					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+						response := new(models.Song)
+						err := json.Unmarshal([]byte(`{"id":"tester", "name":"tester"}`), response)
+						println(fmt.Sprintf("%+v", response))
+						return response, err
+					},
+				},
+				"artist": &graphql.Field{
+					Type: artistType,
+					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+						response := new(models.Artist)
+						err := json.Unmarshal([]byte(`{"id":"tester", "name":"tester"}`), response)
+						println(fmt.Sprintf("%+v", response))
+						return response, err
+					},
+				},
 			},
 		})
 

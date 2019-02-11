@@ -21,8 +21,8 @@ func main() {
 
 	host := viper.GetString("host")
 
-	db := new(db_client.DBClient)
-	db.Start()
 	gqlAPI := new(api.GQLApi)
 	gqlAPI.Start(host)
+	db := new(db_client.DBClient)
+	db.Start()
 }
