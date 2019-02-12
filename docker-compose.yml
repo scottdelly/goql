@@ -1,0 +1,24 @@
+# Use postgres/example user/password credentials
+version: '3.1'
+
+services:
+
+  db:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: example
+    ports:
+      - 5432:5432
+
+  api:
+    image: golang:latest
+    volumes:
+      - ./:/go/src/github.com/scottdelly/goql
+      - ./vendor:/go/src/
+    ports:
+      - 8080:8080
+    working_dir: /go/src/github.com/scottdelly/goql
+    command: "go run main.go --db_host_name db"
+    links:
+      - db:db
