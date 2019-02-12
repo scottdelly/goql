@@ -2,7 +2,7 @@ package models
 
 type User struct {
 	Model
-	Email string `db:"email" json:"-"`
+	Email string `db:"email" json:"email"`
 }
 
 //Conforms to CRUDModel

@@ -6,7 +6,7 @@ import (
 
 type Song struct {
 	Model
-	ArtistId ModelId
+	ArtistId ModelId       `db:"artist_id" json:"artist_id"`
 	Duration time.Duration `db:"duration" json:"duration"`
 }
 

@@ -146,6 +146,14 @@
   version = "v1.1.2"
 
 [[projects]]
+  branch = "master"
+  digest = "1:9e1dddd87b3d41747abf625fb2d01e85b58642327d72dc0719e95e938a0016e9"
+  name = "github.com/mnmtanish/go-graphiql"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "cef5a61bd62b996aa67029c6c858f673d6e51718"
+
+[[projects]]
   digest = "1:95741de3af260a92cc5c7f3f3061e85273f5a81b5db20d4bd68da74bd521675e"
   name = "github.com/pelletier/go-toml"
   packages = ["."]
@@ -263,6 +271,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/graphql-go/graphql",
+    "github.com/mnmtanish/go-graphiql",
     "github.com/spf13/viper",
     "gopkg.in/mgutz/dat.v2/dat",
     "gopkg.in/mgutz/dat.v2/sqlx-runner",

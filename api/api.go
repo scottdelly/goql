@@ -7,8 +7,9 @@ import (
 	"net/http"
 
 	"github.com/graphql-go/graphql"
+	"github.com/mnmtanish/go-graphiql"
 
-	"github.com/scottdelly/goql/models"
+	"github.com/scottdelly/goql/api/schemas"
 )
 
 type GQLApi struct {
@@ -37,10 +38,12 @@ func (g *GQLApi) Test() {
 }
 
 func (g *GQLApi) startHttp(host string) {
-	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("/gql", func(w http.ResponseWriter, r *http.Request) {
 		result := executeQuery(r.URL.Query().Get("query"), g.schema)
 		_ = json.NewEncoder(w).Encode(result)
 	})
+	http.HandleFunc("/", graphiql.ServeGraphiQL)
+
 	fmt.Println(fmt.Sprintf("Server is running at %s", host))
 
 	err := http.ListenAndServe(host, nil)
@@ -51,88 +54,13 @@ func (g *GQLApi) startHttp(host string) {
 
 func (g *GQLApi) startGQL() graphql.Schema {
 
-	var userType = graphql.NewObject(
-		graphql.ObjectConfig{
-			Name: "User",
-			Fields: graphql.Fields{
-				"id": &graphql.Field{
-					Type: graphql.Int,
-				},
-				"name": &graphql.Field{
-					Type: graphql.String,
-				},
-				"email": &graphql.Field{
-					Type: graphql.String,
-				},
-			},
-		},
-	)
-
-	var songType = graphql.NewObject(
-		graphql.ObjectConfig{
-			Name: "Song",
-			Fields: graphql.Fields{
-				"id": &graphql.Field{
-					Type: graphql.Int,
-				},
-				"name": &graphql.Field{
-					Type: graphql.String,
-				},
-				"duration": &graphql.Field{
-					Type: graphql.Float,
-				},
-			},
-		},
-	)
-
-	var artistType = graphql.NewObject(
-		graphql.ObjectConfig{
-			Name: "Artist",
-			Fields: graphql.Fields{
-				"id": &graphql.Field{
-					Type: graphql.Int,
-				},
-				"name": &graphql.Field{
-					Type: graphql.String,
-				},
-				"like_count": &graphql.Field{
-					Type: graphql.Int,
-				},
-			},
-		},
-	)
-
 	var queryType = graphql.NewObject(
 		graphql.ObjectConfig{
 			Name: "Query",
 			Fields: graphql.Fields{
-				"user": &graphql.Field{
-					Type: userType,
-					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-						response := new(models.User)
-						err := json.Unmarshal([]byte(`{"id":"tester", "name":"tester"}`), response)
-						println(fmt.Sprintf("%+v", response))
-						return response, err
-					},
-				},
-				"song": &graphql.Field{
-					Type: songType,
-					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-						response := new(models.Song)
-						err := json.Unmarshal([]byte(`{"id":"tester", "name":"tester"}`), response)
-						println(fmt.Sprintf("%+v", response))
-						return response, err
-					},
-				},
-				"artist": &graphql.Field{
-					Type: artistType,
-					Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-						response := new(models.Artist)
-						err := json.Unmarshal([]byte(`{"id":"tester", "name":"tester"}`), response)
-						println(fmt.Sprintf("%+v", response))
-						return response, err
-					},
-				},
+				"user":   schemas.UserQueryField,
+				"song":   schemas.SongQueryField,
+				"artist": schemas.ArtistQueryField,
 			},
 		})
 
