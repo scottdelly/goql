@@ -4,6 +4,10 @@ This repo will contain a working application that creates a graphQL interface to
 
 Progress updates:
 
+commit ec74244c:
+- Pulls in a docker image for postgres and the entire app can be started with 'docker-compose up'
+- Connects db layer to actual db
+
 Commit f4fd493b:
 - Update the API to resolve graphql queries with all current types
 - adds graphiql server for auto-documentation
