@@ -4,6 +4,11 @@ This repo will contain a working application that creates a graphQL interface to
 
 Progress updates:
 
+Commit 3afddf58:
+- You can now query all types in graphql
+- Artists has subquery of songs
+- Artists and songs can be searched for by name
+
 commit ec74244c:
 - Pulls in a docker image for postgres and the entire app can be started with 'docker-compose up'
 - Connects db layer to actual db
