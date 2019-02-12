@@ -7,7 +7,7 @@ type User struct {
 
 //Conforms to CRUDModel
 func (u *User) TableName(operation CRUDOperation) string {
-	return "user"
+	return "users"
 }
 
 func (u *User) ColumnNames(operation CRUDOperation) []string {

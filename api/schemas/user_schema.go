@@ -1,13 +1,15 @@
 package schemas
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/graphql-go/graphql"
 
+	"github.com/scottdelly/goql/db_client"
 	"github.com/scottdelly/goql/models"
 )
+
+func userClient() *db_client.UserClient {
+	return db_client.NewUserClient(DBC)
+}
 
 var userType = graphql.NewObject(
 	graphql.ObjectConfig{
@@ -26,18 +28,12 @@ var UserQueryField = &graphql.Field{
 	Type:        userType,
 	Description: "Get user by ID",
 	Args: graphql.FieldConfigArgument{
-		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
+		"id": modelIDArgumentConfig(),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-		id, ok := p.Args["id"].(int)
+		id, ok := p.Args["id"].(models.ModelId)
 		if ok {
-			response := new(models.User)
-			err := json.Unmarshal(
-				[]byte(fmt.Sprintf(`{"id": %d, "name": "tester", "email": "test@test.test"}`, id)),
-				response)
-			return *response, err
+			return userClient().GetUserById(id)
 		}
 		return nil, nil
 	},

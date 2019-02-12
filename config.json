@@ -1,3 +1,6 @@
 {
-  "host" : ":8080"
+  "api_host_name" : ":8080",
+  "db_user": "postgres",
+  "db_pass": "example",
+  "db_host_name": "localhost"
 }

@@ -8,6 +8,12 @@ type SongClient struct {
 	DBClient
 }
 
+func NewSongClient(dbc *DBClient) *SongClient {
+	sc := new(SongClient)
+	sc.DBClient = *dbc
+	return sc
+}
+
 func newSong() *models.Song {
 	return new(models.Song)
 }
@@ -35,7 +41,7 @@ func (s *SongClient) SongsBy(artistId models.ModelId) ([]*models.Song, error) {
 	songs := emptySongs()
 	err := s.
 		Read(newSong()).
-		Where(`artist_id = $1`, artistId).
+		Where(`"artist_id"" = $1`, artistId).
 		QueryStructs(songs)
 	if err != nil {
 		return nil, err

@@ -1,13 +1,17 @@
 package schemas
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/graphql-go/graphql"
 	"github.com/graphql-go/graphql/language/ast"
 
+	"github.com/scottdelly/goql/db_client"
 	"github.com/scottdelly/goql/models"
 )
+
+var DBC *db_client.DBClient
 
 var ModelIdScalar = graphql.NewScalar(graphql.ScalarConfig{
 	Name:        "ModelId",
@@ -39,7 +43,11 @@ var ModelIdScalar = graphql.NewScalar(graphql.ScalarConfig{
 	ParseLiteral: func(valueAST ast.Value) interface{} {
 		switch valueAST := valueAST.(type) {
 		case *ast.IntValue:
-			return models.ModelId(valueAST.GetValue().(int))
+			intVal, err := strconv.ParseInt(valueAST.Value, 0, 0)
+			if err != nil {
+				return err
+			}
+			return models.ModelId(intVal)
 		default:
 			return nil
 		}
@@ -98,5 +106,11 @@ func gqlNameField() *graphql.Field {
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 			return p.Source.(models.Nameable).NameValue(), nil
 		},
+	}
+}
+
+func modelIDArgumentConfig() *graphql.ArgumentConfig {
+	return &graphql.ArgumentConfig{
+		Type: ModelIdScalar,
 	}
 }

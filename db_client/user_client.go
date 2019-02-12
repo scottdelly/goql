@@ -8,6 +8,12 @@ type UserClient struct {
 	DBClient
 }
 
+func NewUserClient(dbc *DBClient) *UserClient {
+	uc := new(UserClient)
+	uc.DBClient = *dbc
+	return uc
+}
+
 func newUser() *models.User {
 	return new(models.User)
 }
@@ -25,7 +31,7 @@ func (u *UserClient) GetUsers(limit uint64, where map[string]interface{}, args .
 	return users, err
 }
 
-func (u *UserClient) GetUser(id models.ModelId) (*models.User, error) {
+func (u *UserClient) GetUserById(id models.ModelId) (*models.User, error) {
 	user := newUser()
 	err := u.GetByID(user, id, user)
 	return user, err

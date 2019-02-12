@@ -7,7 +7,7 @@ type Artist struct {
 
 //Conforms to CRUDModel
 func (a *Artist) TableName(operation CRUDOperation) string {
-	return "artist"
+	return "artists"
 }
 
 func (a *Artist) ColumnNames(operation CRUDOperation) []string {

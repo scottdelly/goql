@@ -12,7 +12,7 @@ type Song struct {
 
 //Conforms to CRUDModel
 func (s *Song) TableName(operation CRUDOperation) string {
-	return "song"
+	return "songs"
 }
 
 func (s *Song) ColumnNames(operation CRUDOperation) []string {

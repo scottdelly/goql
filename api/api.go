@@ -16,9 +16,9 @@ type GQLApi struct {
 	schema graphql.Schema
 }
 
-func (g *GQLApi) Start(host string) {
+func (g *GQLApi) Start(host string) error {
 	g.schema = g.startGQL()
-	g.startHttp(host)
+	return g.startHttp(host)
 }
 
 func (g *GQLApi) Test() {
@@ -37,7 +37,7 @@ func (g *GQLApi) Test() {
 	fmt.Printf("%s \n", rJSON) // {“data”:{“hello”:”world”}}
 }
 
-func (g *GQLApi) startHttp(host string) {
+func (g *GQLApi) startHttp(host string) error {
 	http.HandleFunc("/gql", func(w http.ResponseWriter, r *http.Request) {
 		result := executeQuery(r.URL.Query().Get("query"), g.schema)
 		_ = json.NewEncoder(w).Encode(result)
@@ -46,10 +46,7 @@ func (g *GQLApi) startHttp(host string) {
 
 	fmt.Println(fmt.Sprintf("Server is running at %s", host))
 
-	err := http.ListenAndServe(host, nil)
-	if err != nil {
-		panic(err)
-	}
+	return http.ListenAndServe(host, nil)
 }
 
 func (g *GQLApi) startGQL() graphql.Schema {

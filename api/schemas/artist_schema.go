@@ -1,13 +1,15 @@
 package schemas
 
 import (
-	"encoding/json"
-	"fmt"
-
 	"github.com/graphql-go/graphql"
 
+	"github.com/scottdelly/goql/db_client"
 	"github.com/scottdelly/goql/models"
 )
+
+func artistClient() *db_client.ArtistClient {
+	return db_client.NewArtistClient(DBC)
+}
 
 var artistType = graphql.NewObject(
 	graphql.ObjectConfig{
@@ -25,18 +27,13 @@ var artistType = graphql.NewObject(
 var ArtistQueryField = &graphql.Field{
 	Type: artistType,
 	Args: graphql.FieldConfigArgument{
-		"id": &graphql.ArgumentConfig{
-			Type: graphql.Int,
-		},
+		"id": modelIDArgumentConfig(),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-		id, ok := p.Args["id"].(int)
+		id, ok := p.Args["id"].(models.ModelId)
 		if ok {
-			response := new(models.Artist)
-			err := json.Unmarshal(
-				[]byte(fmt.Sprintf(`{"id": %d,  "name": "tester", "like_count": 4}`, id)),
-				response)
-			return *response, err
+			artist, err := artistClient().GetArtistById(id)
+			return *artist, err
 		}
 		return nil, nil
 	},

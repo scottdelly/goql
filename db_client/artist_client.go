@@ -8,6 +8,12 @@ type ArtistClient struct {
 	DBClient
 }
 
+func NewArtistClient(dbc *DBClient) *ArtistClient {
+	ac := new(ArtistClient)
+	ac.DBClient = *dbc
+	return ac
+}
+
 func newArtist() *models.Artist {
 	return new(models.Artist)
 }
