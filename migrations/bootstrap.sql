@@ -87,27 +87,27 @@ INSERT INTO songs("name", "artist_id", "duration") VALUES('Sorry', 6, 3000000000
 INSERT INTO songs("name", "artist_id", "duration") VALUES('Friends(with BloodPop)', 6, 220000000000);
 INSERT INTO songs("name", "artist_id", "duration") VALUES('What Do You Mean?', 6, 230000000000);
 
-INSERT INTO songs("name", "artist_id", "duration") VALUES('No Brainer', 7, 240000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Love Yourself', 7, 270000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Sorry', 7, 300000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Friends(with BloodPop)', 7, 220000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('What Do You Mean?', 7, 230000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Halo', 7, 240000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Crazy In Love', 7, 270000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Run the World (Girls)', 7, 300000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Love On Top', 7, 220000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Irreplaceable', 7, 230000000000);
 
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Halo', 8, 240000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Crazy In Love', 8, 270000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Run the World (Girls)', 8, 300000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Love On Top', 8, 220000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Irreplaceable', 8, 230000000000);
-
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Centuries', 9, 240000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES(E'Sugar, We\'re Goin Down', 9, 270000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Centuries', 8, 240000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES(E'Sugar, We\'re Goin Down', 8, 270000000000);
 --'bad syntax highlighting
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Thanks fr the Mmrs', 9, 300000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Dance, Dance', 9, 220000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Immortals', 9, 230000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Thanks fr the Mmrs', 8, 300000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Dance, Dance', 8, 220000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Immortals', 8, 230000000000);
 
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Creep', 10, 240000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Karma Police', 10, 270000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('High And Dry', 10, 300000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('Fake Plastic Trees', 10, 220000000000);
-INSERT INTO songs("name", "artist_id", "duration") VALUES('No Surprises', 10, 230000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Creep', 9, 240000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Karma Police', 9, 270000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('High And Dry', 9, 300000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Fake Plastic Trees', 9, 220000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('No Surprises', 9, 230000000000);
+
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Loser', 10, 240000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Up All Night', 10, 270000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Tarantula', 10, 300000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Dreams', 10, 220000000000);
+INSERT INTO songs("name", "artist_id", "duration") VALUES('Colors', 10, 230000000000);
