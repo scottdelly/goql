@@ -23,11 +23,16 @@ func emptySongs() []*models.Song {
 
 func (s *SongClient) GetSongs(limit uint64, where interface{}, args ...interface{}) ([]*models.Song, error) {
 	songs := emptySongs()
-	err := s.
-		Read(newSong()).
-		Where(where, args...).
-		Limit(limit).
-		QueryStructs(songs)
+
+	builder := s.Read(newSong())
+	if where != nil {
+		builder.
+			Where(where, args...)
+	}
+	err :=
+		builder.
+			Limit(limit).
+			QueryStructs(&songs)
 	return songs, err
 }
 

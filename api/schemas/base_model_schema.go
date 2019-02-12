@@ -1,11 +1,10 @@
 package schemas
 
 import (
-	"strconv"
-	"time"
+	"errors"
+	"fmt"
 
 	"github.com/graphql-go/graphql"
-	"github.com/graphql-go/graphql/language/ast"
 
 	"github.com/scottdelly/goql/db_client"
 	"github.com/scottdelly/goql/models"
@@ -13,83 +12,23 @@ import (
 
 var DBC *db_client.DBClient
 
-var ModelIdScalar = graphql.NewScalar(graphql.ScalarConfig{
-	Name:        "ModelId",
-	Description: "The `ModelId` scalar type represents an ID Object.",
-	// Serialize serializes `CustomID` to string.
-	Serialize: func(value interface{}) interface{} {
-		switch value := value.(type) {
-		case models.ModelId:
-			return int(value)
-		case *models.ModelId:
-			v := *value
-			return int(v)
-		default:
-			return nil
-		}
-	},
-	// ParseValue parses GraphQL variables from `string` to `CustomID`.
-	ParseValue: func(value interface{}) interface{} {
-		switch value := value.(type) {
-		case int:
-			return models.ModelId(value)
-		case *int:
-			return models.ModelId(*value)
-		default:
-			return nil
-		}
-	},
-	// ParseLiteral parses GraphQL AST value to `CustomID`.
-	ParseLiteral: func(valueAST ast.Value) interface{} {
-		switch valueAST := valueAST.(type) {
-		case *ast.IntValue:
-			intVal, err := strconv.ParseInt(valueAST.Value, 0, 0)
-			if err != nil {
-				return err
-			}
-			return models.ModelId(intVal)
-		default:
-			return nil
-		}
-	},
-})
+func createGQLObject(name string, fields graphql.Fields) *graphql.Object {
 
-var DurationScalar = graphql.NewScalar(graphql.ScalarConfig{
-	Name:        "Duration",
-	Description: "The `Duration` scalar type represents a time duration.",
-	// Serialize serializes `CustomID` to string.
-	Serialize: func(value interface{}) interface{} {
-		switch value := value.(type) {
-		case time.Duration:
-			return int(value)
-		case *time.Duration:
-			v := *value
-			return int(v)
-		default:
-			return nil
-		}
-	},
-	// ParseValue parses GraphQL variables from `string` to `CustomID`.
-	ParseValue: func(value interface{}) interface{} {
-		switch value := value.(type) {
-		case int:
-			return time.Duration(value)
-		case *int:
-			return time.Duration(*value)
-		default:
-			return nil
-		}
-	},
-	// ParseLiteral parses GraphQL AST value to `CustomID`.
-	ParseLiteral: func(valueAST ast.Value) interface{} {
-		switch valueAST := valueAST.(type) {
-		case *ast.IntValue:
-			return time.Duration(valueAST.GetValue().(int))
-		default:
-			return nil
-		}
-	},
-})
+	if fields == nil {
+		fields = make(map[string]*graphql.Field)
+	}
+
+	fields["id"] = gqlIdField()
+	fields["name"] = gqlNameField()
+	fields["created"] = gqlCreatedField()
+
+	return graphql.NewObject(
+		graphql.ObjectConfig{
+			Name:   name,
+			Fields: fields,
+		},
+	)
+}
 
 func gqlIdField() *graphql.Field {
 	return &graphql.Field{
@@ -109,8 +48,47 @@ func gqlNameField() *graphql.Field {
 	}
 }
 
+func gqlCreatedField() *graphql.Field {
+	return &graphql.Field{
+		Type: graphql.DateTime,
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			return p.Source.(models.Historical).DateValue(), nil
+		},
+	}
+}
+
 func modelIDArgumentConfig() *graphql.ArgumentConfig {
 	return &graphql.ArgumentConfig{
 		Type: ModelIdScalar,
 	}
+}
+
+func parseModelId(p graphql.ResolveParams) models.ModelId {
+	id, ok := p.Args["id"].(models.ModelId)
+	if !ok {
+		panic(errors.New(fmt.Sprintf("Failed to parse model ID from %+v", p.Source)))
+	}
+	return id
+}
+
+func limitFieldConfig() *graphql.ArgumentConfig {
+	return &graphql.ArgumentConfig{
+		Type:         graphql.Int,
+		DefaultValue: 10,
+	}
+}
+
+func parseLimit(p graphql.ResolveParams) uint64 {
+	return uint64(p.Args["limit"].(int))
+}
+
+func queryFieldConfig() *graphql.ArgumentConfig {
+	return &graphql.ArgumentConfig{
+		Type: graphql.String,
+	}
+}
+
+func parseQuery(p graphql.ResolveParams) (string, bool) {
+	val, ok := p.Args["query"].(string)
+	return val, ok
 }

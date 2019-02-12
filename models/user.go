@@ -11,10 +11,14 @@ func (u *User) TableName(operation CRUDOperation) string {
 }
 
 func (u *User) ColumnNames(operation CRUDOperation) []string {
-	return []string{"id", "name", "email"}
+	columns := u.Model.ColumnNames(operation)
+	columns = append(columns, "email")
+	return columns
 
 }
 
 func (u *User) Values(operation CRUDOperation) []interface{} {
-	return []interface{}{u.ID, u.Name, u.Email}
+	values := u.Model.Values(operation)
+	values = append(values, u.Email)
+	return values
 }

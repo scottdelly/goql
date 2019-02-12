@@ -16,9 +16,13 @@ func (s *Song) TableName(operation CRUDOperation) string {
 }
 
 func (s *Song) ColumnNames(operation CRUDOperation) []string {
-	return []string{"id", "name", "duration"}
+	columns := s.Model.ColumnNames(operation)
+	columns = append(columns, "artist_id", "duration")
+	return columns
 }
 
 func (s *Song) Values(operation CRUDOperation) []interface{} {
-	return []interface{}{s.ID, s.Name, s.Duration}
+	values := s.Model.Values(operation)
+	values = append(values, s.ArtistId, s.Duration)
+	return values
 }

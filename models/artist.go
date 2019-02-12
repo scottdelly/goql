@@ -11,9 +11,13 @@ func (a *Artist) TableName(operation CRUDOperation) string {
 }
 
 func (a *Artist) ColumnNames(operation CRUDOperation) []string {
-	return []string{"id", "name", "like_count"}
+	columns := a.Model.ColumnNames(operation)
+	columns = append(columns, "like_count")
+	return columns
 }
 
 func (a *Artist) Values(operation CRUDOperation) []interface{} {
-	return []interface{}{a.ID, a.Name, a.LikeCount}
+	values := a.Model.Values(operation)
+	values = append(values, a.LikeCount)
+	return values
 }

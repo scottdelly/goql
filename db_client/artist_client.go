@@ -27,7 +27,7 @@ func (a *ArtistClient) GetArtists(limit uint64, where interface{}, args ...inter
 		Read(newArtist()).
 		Where(where, args...).
 		Limit(limit).
-		QueryStructs(artists)
+		QueryStructs(&artists)
 	return artists, err
 }
 

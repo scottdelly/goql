@@ -1,6 +1,8 @@
 package schemas
 
 import (
+	"fmt"
+
 	"github.com/graphql-go/graphql"
 
 	"github.com/scottdelly/goql/db_client"
@@ -11,24 +13,29 @@ func songClient() *db_client.SongClient {
 	return db_client.NewSongClient(DBC)
 }
 
-var songType = graphql.NewObject(
-	graphql.ObjectConfig{
-		Name: "Song",
-		Fields: graphql.Fields{
-			"id":   gqlIdField(),
-			"name": gqlNameField(),
-			"artist_id": &graphql.Field{
-				Type: ModelIdScalar,
-				Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-					return p.Source.(models.Song).ArtistId, nil
-				},
+var songType = createGQLObject("Song",
+	graphql.Fields{
+		"artist_id": &graphql.Field{
+			Type: ModelIdScalar,
+			Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+				return p.Source.(*models.Song).ArtistId, nil
 			},
-			"duration": &graphql.Field{
-				Type: DurationScalar,
-			},
+		},
+		"duration": &graphql.Field{
+			Type: DurationScalar,
 		},
 	},
 )
+
+func init() {
+	songType.AddFieldConfig("artist", &graphql.Field{
+		Type: artistType,
+		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+			artistId := p.Source.(*models.Song).ArtistId
+			return artistClient().GetArtistById(artistId)
+		},
+	})
+}
 
 var SongQueryField = &graphql.Field{
 	Type: songType,
@@ -36,10 +43,34 @@ var SongQueryField = &graphql.Field{
 		"id": modelIDArgumentConfig(),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-		id, ok := p.Args["id"].(models.ModelId)
-		if ok {
-			return songClient().GetSongById(id)
+		return songClient().GetSongById(parseModelId(p))
+	},
+}
+
+var SongListField = &graphql.Field{
+	Type:        graphql.NewList(songType),
+	Description: "List of Songs",
+	Args: graphql.FieldConfigArgument{
+		"limit": limitFieldConfig(),
+		"query": queryFieldConfig(),
+		"artist_id": &graphql.ArgumentConfig{
+			Type: ModelIdScalar,
+		},
+	},
+	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+		if query, ok := parseQuery(p); ok {
+			return songClient().GetSongs(parseLimit(p), `"name" ilike $1`, fmt.Sprintf("%%%s%%", query))
 		}
-		return nil, nil
+		artistId := models.ModelId(-1)
+		if artist, ok := p.Source.(*models.Artist); ok {
+			artistId = artist.ID
+		} else if id, ok := p.Args["artist_id"].(models.ModelId); ok {
+			artistId = id
+		}
+		if artistId > -1 {
+			return songClient().GetSongs(parseLimit(p), `"artist_id" = $1`, artistId)
+		} else {
+			return songClient().GetSongs(parseLimit(p), nil)
+		}
 	},
 }

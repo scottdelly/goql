@@ -1,28 +1,28 @@
 package schemas
 
 import (
+	"fmt"
+
 	"github.com/graphql-go/graphql"
 
 	"github.com/scottdelly/goql/db_client"
-	"github.com/scottdelly/goql/models"
 )
 
 func artistClient() *db_client.ArtistClient {
 	return db_client.NewArtistClient(DBC)
 }
 
-var artistType = graphql.NewObject(
-	graphql.ObjectConfig{
-		Name: "Artist",
-		Fields: graphql.Fields{
-			"id":   gqlIdField(),
-			"name": gqlNameField(),
-			"like_count": &graphql.Field{
-				Type: graphql.Int,
-			},
+var artistType = createGQLObject("Artist",
+	graphql.Fields{
+		"like_count": &graphql.Field{
+			Type: graphql.Int,
 		},
 	},
 )
+
+func init() {
+	artistType.AddFieldConfig("songs", SongListField)
+}
 
 var ArtistQueryField = &graphql.Field{
 	Type: artistType,
@@ -30,11 +30,22 @@ var ArtistQueryField = &graphql.Field{
 		"id": modelIDArgumentConfig(),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-		id, ok := p.Args["id"].(models.ModelId)
+		return artistClient().GetArtistById(parseModelId(p))
+	},
+}
+
+var ArtistListField = &graphql.Field{
+	Type:        graphql.NewList(songType),
+	Description: "List of Artists",
+	Args: graphql.FieldConfigArgument{
+		"limit": limitFieldConfig(),
+		"query": queryFieldConfig(),
+	},
+	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+		query, ok := parseQuery(p)
 		if ok {
-			artist, err := artistClient().GetArtistById(id)
-			return *artist, err
+			return artistClient().GetArtists(parseLimit(p), `"name" ilike $1`, fmt.Sprintf("%%%s%%", query))
 		}
-		return nil, nil
+		return artistClient().GetArtists(parseLimit(p), nil)
 	},
 }

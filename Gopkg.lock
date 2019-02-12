@@ -271,7 +271,9 @@
   analyzer-version = 1
   input-imports = [
     "github.com/graphql-go/graphql",
+    "github.com/graphql-go/graphql/language/ast",
     "github.com/mnmtanish/go-graphiql",
+    "github.com/spf13/pflag",
     "github.com/spf13/viper",
     "gopkg.in/mgutz/dat.v2/dat",
     "gopkg.in/mgutz/dat.v2/sqlx-runner",

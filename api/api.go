@@ -55,11 +55,14 @@ func (g *GQLApi) startGQL() graphql.Schema {
 		graphql.ObjectConfig{
 			Name: "Query",
 			Fields: graphql.Fields{
-				"user":   schemas.UserQueryField,
-				"song":   schemas.SongQueryField,
-				"artist": schemas.ArtistQueryField,
+				"user":    schemas.UserQueryField,
+				"song":    schemas.SongQueryField,
+				"songs":   schemas.SongListField,
+				"artist":  schemas.ArtistQueryField,
+				"artists": schemas.ArtistListField,
 			},
-		})
+		},
+	)
 
 	schema, err := graphql.NewSchema(
 		graphql.SchemaConfig{

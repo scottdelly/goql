@@ -27,7 +27,7 @@ func (u *UserClient) GetUsers(limit uint64, where map[string]interface{}, args .
 		Read(newUser()).
 		Where(where, args...).
 		Limit(limit).
-		QueryStructs(users)
+		QueryStructs(&users)
 	return users, err
 }
 
