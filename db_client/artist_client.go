@@ -23,9 +23,11 @@ func emptyArtists() []*models.Artist {
 
 func (a *ArtistClient) GetArtists(limit uint64, where interface{}, args ...interface{}) ([]*models.Artist, error) {
 	artists := emptyArtists()
-	err := a.
-		Read(newArtist()).
-		Where(where, args...).
+	builder := a.Read(newArtist())
+	if where != nil {
+		builder.Where(where, args...)
+	}
+	err := builder.
 		Limit(limit).
 		QueryStructs(&artists)
 	return artists, err

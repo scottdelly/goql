@@ -63,12 +63,14 @@ func modelIDArgumentConfig() *graphql.ArgumentConfig {
 	}
 }
 
-func parseModelId(p graphql.ResolveParams) models.ModelId {
-	id, ok := p.Args["id"].(models.ModelId)
-	if !ok {
-		panic(errors.New(fmt.Sprintf("Failed to parse model ID from %+v", p.Source)))
+func parseModelId(p graphql.ResolveParams) (models.ModelId, error) {
+	if id, ok := p.Args["id"].(models.ModelId); ok {
+		return id, nil
 	}
-	return id
+	if id, ok := p.Source.(models.Identifiable); ok {
+		return id.Identifier(), nil
+	}
+	return 0, errors.New(fmt.Sprintf("Failed to parse model ID from %+v", p.Source))
 }
 
 func limitFieldConfig() *graphql.ArgumentConfig {

@@ -30,12 +30,16 @@ var ArtistQueryField = &graphql.Field{
 		"id": modelIDArgumentConfig(),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-		return artistClient().GetArtistById(parseModelId(p))
+		if id, err := parseModelId(p); err != nil {
+			return nil, err
+		} else {
+			return artistClient().GetArtistById(id)
+		}
 	},
 }
 
 var ArtistListField = &graphql.Field{
-	Type:        graphql.NewList(songType),
+	Type:        graphql.NewList(artistType),
 	Description: "List of Artists",
 	Args: graphql.FieldConfigArgument{
 		"limit": limitFieldConfig(),

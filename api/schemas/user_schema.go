@@ -25,6 +25,10 @@ var UserQueryField = &graphql.Field{
 		"id": modelIDArgumentConfig(),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-		return userClient().GetUserById(parseModelId(p))
+		if id, err := parseModelId(p); err != nil {
+			return nil, err
+		} else {
+			return userClient().GetUserById(id)
+		}
 	},
 }
