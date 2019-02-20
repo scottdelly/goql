@@ -5,6 +5,11 @@ type LikeObjectType int
 const LikeTypeArtist LikeObjectType = 0
 const LikeTypeSong LikeObjectType = 1
 
+type Likable interface {
+	Identifiable
+	LikeObjectType() LikeObjectType
+}
+
 type CreateLikeMessage struct {
 	User       *User
 	ObjectType LikeObjectType
@@ -21,19 +26,11 @@ type ReadObjectLikesMessage struct {
 	Object     Identifiable
 }
 
-func (u *User) LikeArtist(artist *Artist) CreateLikeMessage {
+func (u *User) LikeObject(likable Likable) CreateLikeMessage {
 	return CreateLikeMessage{
 		User:       u,
-		ObjectType: LikeTypeArtist,
-		Object:     artist,
-	}
-}
-
-func (u *User) LikeSong(song *Song) CreateLikeMessage {
-	return CreateLikeMessage{
-		User:       u,
-		ObjectType: LikeTypeSong,
-		Object:     song,
+		ObjectType: likable.LikeObjectType(),
+		Object:     likable,
 	}
 }
 
@@ -44,16 +41,19 @@ func (u *User) LikesOfType(t LikeObjectType) ReadUserLikesMessage {
 	}
 }
 
-func (a *Artist) Likes() ReadObjectLikesMessage {
+func LikesOn(l Likable) ReadObjectLikesMessage {
 	return ReadObjectLikesMessage{
-		ObjectType: LikeTypeArtist,
-		Object:     a,
+		ObjectType: l.LikeObjectType(),
+		Object:     l,
 	}
 }
 
-func (s *Song) Likes() ReadObjectLikesMessage {
-	return ReadObjectLikesMessage{
-		ObjectType: LikeTypeSong,
-		Object:     s,
-	}
+//Artist Conforms To Likable
+func (a *Artist) LikeObjectType() LikeObjectType {
+	return LikeTypeArtist
+}
+
+//Song Conforms To Likable
+func (s *Song) LikeObjectType() LikeObjectType {
+	return LikeTypeSong
 }

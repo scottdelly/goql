@@ -50,6 +50,15 @@ func (lc *LikesClient) GetUsersByLikes(lm models.ReadObjectLikesMessage, limit u
 	return result, nil
 }
 
+func (lc *LikesClient) LikeCount(lm models.ReadObjectLikesMessage) (int, error) {
+	var count int
+	err := lc.db.Select(`COUNT(*)`).
+		From(tableNameForType(lm.ObjectType)).
+		Where(fmt.Sprintf(`%s = $1`, relIdColumnForType(lm.ObjectType)), lm.Object.Identifier()).
+		QueryScalar(&count)
+	return count, err
+}
+
 func (lc *LikesClient) CreateUserLike(lm models.CreateLikeMessage) error {
 	var err error
 	if _, err = lc.validateUser(lm.User.Id); err != nil {
@@ -63,6 +72,23 @@ func (lc *LikesClient) CreateUserLike(lm models.CreateLikeMessage) error {
 		return err
 	}
 	return nil
+}
+
+func (lc *LikesClient) ResolveObject(objectId models.ModelId, likeType models.LikeObjectType) (models.Likable, error) {
+	var likable models.Likable
+	var err error
+	switch likeType {
+	case models.LikeTypeArtist:
+		if likable, err = NewArtistClient(lc.DBClient).GetArtistById(objectId); err != nil {
+			return nil, err
+		}
+
+	case models.LikeTypeSong:
+		if likable, err = NewSongClient(lc.DBClient).GetSongById(objectId); err != nil {
+			return nil, err
+		}
+	}
+	return likable, nil
 }
 
 func (lc *LikesClient) validateUser(userId models.ModelId) (*models.User, error) {
