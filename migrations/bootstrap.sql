@@ -9,8 +9,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS artists (
     id SERIAL PRIMARY KEY,
     name text NOT NULL,
-    created timestamp with time zone DEFAULT timezone('utc'::text, now()),
-    like_count integer NOT NULL default 0
+    created timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
 
 CREATE TABLE IF NOT EXISTS songs (

@@ -64,9 +64,20 @@ func (g *GQLApi) startGQL() graphql.Schema {
 		},
 	)
 
+	var muatationType = graphql.NewObject(
+		graphql.ObjectConfig{
+			Name: "Mutate",
+			Fields: graphql.Fields{
+				"like_artist": schemas.ArtistLikeMutation,
+				"like_song":   schemas.SongLikeMutation,
+			},
+		},
+	)
+
 	schema, err := graphql.NewSchema(
 		graphql.SchemaConfig{
-			Query: queryType,
+			Query:    queryType,
+			Mutation: muatationType,
 		},
 	)
 

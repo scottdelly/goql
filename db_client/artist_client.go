@@ -5,12 +5,12 @@ import (
 )
 
 type ArtistClient struct {
-	DBClient
+	*DBClient
 }
 
 func NewArtistClient(dbc *DBClient) *ArtistClient {
 	ac := new(ArtistClient)
-	ac.DBClient = *dbc
+	ac.DBClient = dbc
 	return ac
 }
 

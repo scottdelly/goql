@@ -12,7 +12,7 @@ import (
 
 var ModelIdScalar = graphql.NewScalar(graphql.ScalarConfig{
 	Name:        "ModelId",
-	Description: "The `ModelId` scalar type represents an ID Object.",
+	Description: "The `ModelId` scalar type represents an Id Object.",
 	// Serialize serializes `CustomID` to string.
 	Serialize: func(value interface{}) interface{} {
 		switch value := value.(type) {

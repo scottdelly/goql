@@ -27,7 +27,7 @@ func init() {
 var ArtistQueryField = &graphql.Field{
 	Type: artistType,
 	Args: graphql.FieldConfigArgument{
-		"id": modelIDArgumentConfig(),
+		"id": modelIDArgConfig("Artist Id"),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		if id, err := parseModelId(p); err != nil {
@@ -42,8 +42,8 @@ var ArtistListField = &graphql.Field{
 	Type:        graphql.NewList(artistType),
 	Description: "List of Artists",
 	Args: graphql.FieldConfigArgument{
-		"limit": limitFieldConfig(),
-		"query": queryFieldConfig(),
+		"limit": limitArgConfig(),
+		"query": queryArgConfig(),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		query, ok := parseQuery(p)

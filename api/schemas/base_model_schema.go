@@ -54,12 +54,14 @@ func gqlCreatedField() *graphql.Field {
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 			return p.Source.(models.Historical).DateValue(), nil
 		},
+		Description: "Date created",
 	}
 }
 
-func modelIDArgumentConfig() *graphql.ArgumentConfig {
+func modelIDArgConfig(description string) *graphql.ArgumentConfig {
 	return &graphql.ArgumentConfig{
-		Type: ModelIdScalar,
+		Type:        ModelIdScalar,
+		Description: description,
 	}
 }
 
@@ -70,13 +72,14 @@ func parseModelId(p graphql.ResolveParams) (models.ModelId, error) {
 	if id, ok := p.Source.(models.Identifiable); ok {
 		return id.Identifier(), nil
 	}
-	return 0, errors.New(fmt.Sprintf("Failed to parse model ID from %+v", p.Source))
+	return 0, errors.New(fmt.Sprintf("Failed to parse model Id from %+v", p.Source))
 }
 
-func limitFieldConfig() *graphql.ArgumentConfig {
+func limitArgConfig() *graphql.ArgumentConfig {
 	return &graphql.ArgumentConfig{
 		Type:         graphql.Int,
 		DefaultValue: 10,
+		Description:  "Maximum number of results returned",
 	}
 }
 
@@ -84,9 +87,10 @@ func parseLimit(p graphql.ResolveParams) uint64 {
 	return uint64(p.Args["limit"].(int))
 }
 
-func queryFieldConfig() *graphql.ArgumentConfig {
+func queryArgConfig() *graphql.ArgumentConfig {
 	return &graphql.ArgumentConfig{
-		Type: graphql.String,
+		Type:        graphql.String,
+		Description: "Search for query string",
 	}
 }
 

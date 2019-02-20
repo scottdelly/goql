@@ -40,7 +40,7 @@ func init() {
 var SongQueryField = &graphql.Field{
 	Type: songType,
 	Args: graphql.FieldConfigArgument{
-		"id": modelIDArgumentConfig(),
+		"id": modelIDArgConfig("Song Id"),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		if id, err := parseModelId(p); err != nil {
@@ -55,8 +55,8 @@ var SongListField = &graphql.Field{
 	Type:        graphql.NewList(songType),
 	Description: "List of Songs",
 	Args: graphql.FieldConfigArgument{
-		"limit": limitFieldConfig(),
-		"query": queryFieldConfig(),
+		"limit": limitArgConfig(),
+		"query": queryArgConfig(),
 		"artist_id": &graphql.ArgumentConfig{
 			Type: ModelIdScalar,
 		},
@@ -67,7 +67,7 @@ var SongListField = &graphql.Field{
 		}
 		artistId := models.ModelId(-1)
 		if artist, ok := p.Source.(*models.Artist); ok {
-			artistId = artist.ID
+			artistId = artist.Id
 		} else if id, ok := p.Args["artist_id"].(models.ModelId); ok {
 			artistId = id
 		}

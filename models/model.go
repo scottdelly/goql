@@ -7,7 +7,7 @@ import (
 type ModelId int
 
 type Model struct {
-	ID      ModelId   `db:"id" json:"id"`
+	Id      ModelId   `db:"id" json:"id"`
 	Name    string    `db:"name" json:"name"`
 	Created time.Time `db:"created" json:"created"`
 }
@@ -17,7 +17,7 @@ type Identifiable interface {
 }
 
 func (m Model) Identifier() ModelId {
-	return m.ID
+	return m.Id
 }
 
 //Demonstrate and check conformance to Identifiable
@@ -85,7 +85,7 @@ func (m Model) ColumnNames(operation CRUDOperation) []string {
 func (m Model) Values(operation CRUDOperation) []interface{} {
 	switch operation {
 	case CRUDRead:
-		return []interface{}{m.ID, m.Name, m.Created}
+		return []interface{}{m.Id, m.Name, m.Created}
 	default: //create or update should not change id or created date
 		return []interface{}{m.Name}
 	}
