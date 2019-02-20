@@ -98,3 +98,20 @@ func parseQuery(p graphql.ResolveParams) (string, bool) {
 	val, ok := p.Args["query"].(string)
 	return val, ok
 }
+
+func mutationResponse(name string, fields graphql.Fields) *graphql.Object {
+	if fields == nil {
+		fields = make(map[string]*graphql.Field)
+	}
+
+	fields["success"] = &graphql.Field{
+		Type: graphql.Boolean,
+	}
+
+	return graphql.NewObject(
+		graphql.ObjectConfig{
+			Name:   name,
+			Fields: fields,
+		},
+	)
+}

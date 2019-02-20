@@ -21,7 +21,7 @@ func emptyUsers() []*models.User {
 	return make([]*models.User, 0)
 }
 
-func (u *UserClient) GetUsers(limit uint64, where map[string]interface{}, args ...interface{}) ([]*models.User, error) {
+func (u *UserClient) GetUsers(limit uint64, where interface{}, args ...interface{}) ([]*models.User, error) {
 	users := emptyUsers()
 	err := u.
 		Read(newUser()).

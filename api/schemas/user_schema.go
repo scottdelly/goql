@@ -40,7 +40,7 @@ var UserQueryField = &graphql.Field{
 	},
 }
 
-func buildLikeMessage(p graphql.ResolveParams, likeType models.LikeObjectType) (*models.LikeMessage, error) {
+func userFromParams(p graphql.ResolveParams) (*models.User, error) {
 	var err error
 	var userId models.ModelId
 	if userArg, ok := p.Args["user_id"]; ok {
@@ -52,134 +52,135 @@ func buildLikeMessage(p graphql.ResolveParams, likeType models.LikeObjectType) (
 	if user, err = userClient().GetUserById(userId); err != nil {
 		return nil, err
 	}
-
-	var message = models.LikeMessage{User: user, ObjectType: likeType}
-
-	switch likeType {
-	case models.LikeTypeArtist:
-		if artistId, ok := p.Args["artist_id"]; ok {
-			if message.Object, err = artistClient().GetArtistById(artistId.(models.ModelId)); err != nil {
-				return nil, err
-			}
-		}
-	case models.LikeTypeSong:
-		if songId, ok := p.Args["song_id"]; ok {
-			if message.Object, err = songClient().GetSongById(songId.(models.ModelId)); err != nil {
-				return nil, err
-			}
-		}
-	}
-	return &message, nil
+	return user, nil
 }
 
 var ArtistLikeQueryField = &graphql.Field{
-	Type:        graphql.NewList(ModelIdScalar),
+	Type:        graphql.NewList(artistType),
 	Description: "Artists that the user likes",
 	Args: graphql.FieldConfigArgument{
 		"limit": limitArgConfig(),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		limit := parseLimit(p)
-		message, err := buildLikeMessage(p, models.LikeTypeArtist)
+		user, err := userFromParams(p)
 		if err != nil {
 			return nil, err
 		}
 		var response []models.ModelId
-		if response, err = likesClient().GetLikes(*message, limit); err != nil {
+		if response, err = likesClient().GetLikesForUser(user.LikesOfType(models.LikeTypeArtist), limit); err != nil {
 			return nil, err
 		}
-		return response, nil
+		if len(response) > 0 {
+			var artists []*models.Artist
+			artists, err = artistClient().GetArtists(limit, `"id" IN $1`, response)
+			if err != nil {
+				return nil, err
+			}
+			return artists, nil
+		}
+		return nil, nil
 	},
 }
 
-func likeMutationResponse(name string, fields graphql.Fields) *graphql.Object {
-	if fields == nil {
-		fields = make(map[string]*graphql.Field)
-	}
-
-	fields["success"] = &graphql.Field{
-		Type: graphql.Boolean,
-	}
-	fields["user"] = &graphql.Field{
-		Type: userType,
-	}
-
-	return graphql.NewObject(
-		graphql.ObjectConfig{
-			Name:   name,
-			Fields: fields,
-		},
-	)
-}
-
 var ArtistLikeMutation = &graphql.Field{
-	Type: likeMutationResponse("UserLikesArtist",
-		graphql.Fields{"artist": &graphql.Field{
-			Type: artistType,
-		}},
+	Type: mutationResponse("UserLikesArtist",
+		graphql.Fields{
+			"user": &graphql.Field{
+				Type: userType,
+			},
+			"artist": &graphql.Field{
+				Type: artistType,
+			},
+		},
 	),
 	Args: graphql.FieldConfigArgument{
 		"artist_id": modelIDArgConfig("Artist Id"),
 		"user_id":   modelIDArgConfig("User Id"),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-		message, err := buildLikeMessage(p, models.LikeTypeArtist)
+		user, err := userFromParams(p)
 		if err != nil {
 			return nil, err
 		}
-		if err = likesClient().CreateUserLike(*message); err != nil {
+		var artist *models.Artist
+		if artistId, ok := p.Args["artist_id"]; ok {
+			if artist, err = artistClient().GetArtistById(artistId.(models.ModelId)); err != nil {
+				return nil, err
+			}
+		}
+		if err = likesClient().CreateUserLike(user.LikeArtist(artist)); err != nil {
 			return nil, err
 		}
 		return map[string]interface{}{
 			"success": true,
-			"user":    message.User,
-			"artist":  message.Object,
+			"user":    user,
+			"artist":  artist,
 		}, nil
 	},
 }
 
 var SongLikeQueryField = &graphql.Field{
-	Type:        graphql.NewList(ModelIdScalar),
+	Type:        graphql.NewList(songType),
 	Description: "Songs that the user likes",
 	Args: graphql.FieldConfigArgument{
 		"limit": limitArgConfig(),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		limit := parseLimit(p)
-		message, err := buildLikeMessage(p, models.LikeTypeSong)
+		user, err := userFromParams(p)
 		if err != nil {
 			return nil, err
 		}
 		var response []models.ModelId
-		if response, err = likesClient().GetLikes(*message, limit); err != nil {
+		if response, err = likesClient().GetLikesForUser(user.LikesOfType(models.LikeTypeSong), limit); err != nil {
 			return nil, err
+		}
+		if len(response) > 0 {
+			var songs []*models.Song
+			songs, err = songClient().GetSongs(limit, `"id" IN $1`, response)
+			if err != nil {
+				return nil, err
+			}
+			return songs, nil
 		}
 		return response, nil
 	},
 }
 
 var SongLikeMutation = &graphql.Field{
-	Type: likeMutationResponse("UserLikesSong",
-		graphql.Fields{"song": &graphql.Field{
-			Type: songType,
-		}},
+	Type: mutationResponse("UserLikesSong",
+		graphql.Fields{
+			"user": &graphql.Field{
+				Type: userType,
+			},
+			"song": &graphql.Field{
+				Type: songType,
+			},
+		},
 	),
 	Args: graphql.FieldConfigArgument{
 		"song_id": modelIDArgConfig("Song Id"),
 		"user_id": modelIDArgConfig("User Id"),
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
-		message, err := buildLikeMessage(p, models.LikeTypeSong)
+		user, err := userFromParams(p)
 		if err != nil {
 			return nil, err
 		}
-		if err = likesClient().CreateUserLike(*message); err != nil {
+		var song *models.Song
+		if songId, ok := p.Args["song_id"]; ok {
+			if song, err = songClient().GetSongById(songId.(models.ModelId)); err != nil {
+				return nil, err
+			}
+		}
+		if err = likesClient().CreateUserLike(user.LikeSong(song)); err != nil {
 			return nil, err
 		}
 		return map[string]interface{}{
 			"success": true,
-			"user":    message.User,
-			"song":    message.Object,
+			"user":    user,
+			"song":    song,
 		}, nil
 	},
 }

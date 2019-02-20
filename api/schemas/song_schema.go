@@ -35,6 +35,7 @@ func init() {
 			return artistClient().GetArtistById(artistId)
 		},
 	})
+	songType.AddFieldConfig("liked_by", SongLikesField)
 }
 
 var SongQueryField = &graphql.Field{
@@ -76,5 +77,24 @@ var SongListField = &graphql.Field{
 		} else {
 			return songClient().GetSongs(parseLimit(p), nil)
 		}
+	},
+}
+
+var SongLikesField = &graphql.Field{
+	Type:        graphql.NewList(userType),
+	Description: "Users who like this song",
+	Args: graphql.FieldConfigArgument{
+		"limit": limitArgConfig(),
+	},
+	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+		limit := parseLimit(p)
+		song := p.Source.(*models.Song)
+		if userIds, err := likesClient().GetUsersByLikes(song.Likes(), limit); err != nil {
+			return nil, err
+		} else if len(userIds) > 0 {
+			users, err := userClient().GetUsers(limit, `id IN $1`, userIds)
+			return users, err
+		}
+		return nil, nil
 	},
 }

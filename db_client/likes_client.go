@@ -24,7 +24,7 @@ func NewLikesClient(dbc *DBClient) *LikesClient {
 	return lc
 }
 
-func (lc *LikesClient) GetLikes(lm models.LikeMessage, limit uint64) ([]models.ModelId, error) {
+func (lc *LikesClient) GetLikesForUser(lm models.ReadUserLikesMessage, limit uint64) ([]models.ModelId, error) {
 	var result = make([]models.ModelId, 0)
 	err := lc.db.Select(relIdColumnForType(lm.ObjectType)).
 		From(tableNameForType(lm.ObjectType)).
@@ -37,7 +37,20 @@ func (lc *LikesClient) GetLikes(lm models.LikeMessage, limit uint64) ([]models.M
 	return result, nil
 }
 
-func (lc *LikesClient) CreateUserLike(lm models.LikeMessage) error {
+func (lc *LikesClient) GetUsersByLikes(lm models.ReadObjectLikesMessage, limit uint64) ([]models.ModelId, error) {
+	var result = make([]models.ModelId, 0)
+	err := lc.db.Select(UserIdColumn).
+		From(tableNameForType(lm.ObjectType)).
+		Where(fmt.Sprintf(`%s = $1`, relIdColumnForType(lm.ObjectType)), lm.Object.Identifier()).
+		Limit(limit).
+		QuerySlice(&result)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
+
+func (lc *LikesClient) CreateUserLike(lm models.CreateLikeMessage) error {
 	var err error
 	if _, err = lc.validateUser(lm.User.Id); err != nil {
 		return err
@@ -61,7 +74,7 @@ func (lc *LikesClient) validateUser(userId models.ModelId) (*models.User, error)
 	}
 }
 
-func (lc *LikesClient) checkExistingLikes(lm models.LikeMessage) error {
+func (lc *LikesClient) checkExistingLikes(lm models.CreateLikeMessage) error {
 	count := 0
 	objectKey := relIdColumnForType(lm.ObjectType)
 	if err := lc.db.Select(`COUNT(*)`).
@@ -76,7 +89,7 @@ func (lc *LikesClient) checkExistingLikes(lm models.LikeMessage) error {
 	return nil
 }
 
-func (lc *LikesClient) createLike(lm models.LikeMessage) error {
+func (lc *LikesClient) createLike(lm models.CreateLikeMessage) error {
 	if _, err := lc.db.InsertInto(tableNameForType(lm.ObjectType)).
 		Columns(UserIdColumn, relIdColumnForType(lm.ObjectType)).
 		Values(lm.User.Id, lm.Object.Identifier()).
