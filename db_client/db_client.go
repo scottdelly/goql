@@ -3,6 +3,8 @@ package db_client
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"time"
 
 	"gopkg.in/mgutz/dat.v2/dat"
@@ -11,22 +13,24 @@ import (
 	"github.com/scottdelly/goql/models"
 )
 
+const dbName = "postgres"
+
 type DBClient struct {
 	db *runner.DB
 }
 
-func (d *DBClient) Start(user, pass, host string) {
+func (d *DBClient) Start(user, pass, host string, bootstrap bool) {
 	// create a normal database connection through database/sql
-	println(fmt.Sprintf("DB Starting"))
+	log.Println("==> DB Starting")
 
 	db, err := sql.Open("postgres",
-		fmt.Sprintf("dbname=postgres user=%s password=%s host=%s sslmode=disable", user, pass, host))
+		fmt.Sprintf("dbname=%s user=%s password=%s host=%s sslmode=disable", dbName, user, pass, host))
 	if err != nil {
 		panic(err)
 	}
 
 	runner.MustPing(db)
-	println(fmt.Sprintf("DB Reached"))
+	log.Println("==> DB Connected")
 
 	// set to reasonable values for production
 	db.SetMaxIdleConns(4)
@@ -43,14 +47,20 @@ func (d *DBClient) Start(user, pass, host string) {
 	runner.LogQueriesThreshold = 10 * time.Millisecond
 
 	d.db = runner.NewDB(db, "postgres")
+
+	if bootstrap {
+		d.bootstrapDB()
+	}
+	log.Println("==> DB Ready")
 }
 
 func (d *DBClient) Create(i models.CRUDModel) error {
-	_, err := d.db.
+	err := d.db.
 		InsertInto(i.TableName(models.CRUDCreate)).
 		Columns(i.ColumnNames(models.CRUDCreate)...).
 		Values(i.Values(models.CRUDCreate)...).
-		Exec()
+		Returning(i.ColumnNames(models.CRUDRead)...).
+		QueryStruct(i)
 	return err
 }
 
@@ -101,4 +111,27 @@ func (d *DBClient) DeleteByID(i models.CRUDModel) error {
 		Where(`"id" = $1`, i.Identifier()).
 		Exec()
 	return err
+}
+
+func (d *DBClient) bootstrapDB() {
+	log.Println("==> Bootstrapping DB")
+	resetSQL, err := ioutil.ReadFile("./migrations/reset.sql")
+	if err != nil {
+		panic(err)
+	}
+	bootstrapSQL, err := ioutil.ReadFile("./migrations/bootstrap.sql")
+	if err != nil {
+		panic(err)
+	}
+	tx, err := d.db.DB.Begin()
+	_, err = tx.Exec(string(resetSQL))
+	_, err = tx.Exec(string(bootstrapSQL))
+	if err != nil {
+		_ = tx.Rollback()
+		panic(err)
+	}
+	if err = tx.Commit(); err != nil {
+		panic(err)
+	}
+	log.Println("==> Bootstrapping Complete")
 }

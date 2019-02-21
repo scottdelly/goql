@@ -73,7 +73,6 @@ INSERT INTO songs("name", "artist_id", "duration") VALUES('Fly', 4, 270000000000
 INSERT INTO songs("name", "artist_id", "duration") VALUES('Someday', 4, 300000000000);
 INSERT INTO songs("name", "artist_id", "duration") VALUES(E'When It\'s Over - David Kahne Main', 4, 220000000000);
 INSERT INTO songs("name", "artist_id", "duration") VALUES('Into Yesterday', 4, 230000000000);
---' bad syntax highlighting
 INSERT INTO songs("name", "artist_id", "duration") VALUES('Monophobia', 5, 240000000000);
 INSERT INTO songs("name", "artist_id", "duration") VALUES('Drama Free', 5, 270000000000);
 INSERT INTO songs("name", "artist_id", "duration") VALUES('Polyphobia', 5, 300000000000);
@@ -94,7 +93,6 @@ INSERT INTO songs("name", "artist_id", "duration") VALUES('Irreplaceable', 7, 23
 
 INSERT INTO songs("name", "artist_id", "duration") VALUES('Centuries', 8, 240000000000);
 INSERT INTO songs("name", "artist_id", "duration") VALUES(E'Sugar, We\'re Goin Down', 8, 270000000000);
---'bad syntax highlighting
 INSERT INTO songs("name", "artist_id", "duration") VALUES('Thanks fr the Mmrs', 8, 300000000000);
 INSERT INTO songs("name", "artist_id", "duration") VALUES('Dance, Dance', 8, 220000000000);
 INSERT INTO songs("name", "artist_id", "duration") VALUES('Immortals', 8, 230000000000);

@@ -26,7 +26,7 @@ func NewLikesClient(dbc *DBClient) *LikesClient {
 
 func (lc *LikesClient) GetLikesForUser(lm models.ReadUserLikesMessage, limit uint64) ([]models.ModelId, error) {
 	var result = make([]models.ModelId, 0)
-	err := lc.db.Select(relIdColumnForType(lm.ObjectType)).
+	err := lc.db.Select(objectIdColumnForType(lm.ObjectType)).
 		From(tableNameForType(lm.ObjectType)).
 		Where(fmt.Sprintf(`%s = $1`, UserIdColumn), lm.User.Id).
 		Limit(limit).
@@ -41,7 +41,7 @@ func (lc *LikesClient) GetUsersByLikes(lm models.ReadObjectLikesMessage, limit u
 	var result = make([]models.ModelId, 0)
 	err := lc.db.Select(UserIdColumn).
 		From(tableNameForType(lm.ObjectType)).
-		Where(fmt.Sprintf(`%s = $1`, relIdColumnForType(lm.ObjectType)), lm.Object.Identifier()).
+		Where(fmt.Sprintf(`%s = $1`, objectIdColumnForType(lm.ObjectType)), lm.Object.Identifier()).
 		Limit(limit).
 		QuerySlice(&result)
 	if err != nil {
@@ -54,7 +54,7 @@ func (lc *LikesClient) LikeCount(lm models.ReadObjectLikesMessage) (int, error) 
 	var count int
 	err := lc.db.Select(`COUNT(*)`).
 		From(tableNameForType(lm.ObjectType)).
-		Where(fmt.Sprintf(`%s = $1`, relIdColumnForType(lm.ObjectType)), lm.Object.Identifier()).
+		Where(fmt.Sprintf(`%s = $1`, objectIdColumnForType(lm.ObjectType)), lm.Object.Identifier()).
 		QueryScalar(&count)
 	return count, err
 }
@@ -102,7 +102,7 @@ func (lc *LikesClient) validateUser(userId models.ModelId) (*models.User, error)
 
 func (lc *LikesClient) checkExistingLikes(lm models.CreateLikeMessage) error {
 	count := 0
-	objectKey := relIdColumnForType(lm.ObjectType)
+	objectKey := objectIdColumnForType(lm.ObjectType)
 	if err := lc.db.Select(`COUNT(*)`).
 		From(tableNameForType(lm.ObjectType)).
 		Where(fmt.Sprintf(`%s = $1 AND %s = $2`, UserIdColumn, objectKey), lm.User.Id, lm.Object.Identifier()).
@@ -117,7 +117,7 @@ func (lc *LikesClient) checkExistingLikes(lm models.CreateLikeMessage) error {
 
 func (lc *LikesClient) createLike(lm models.CreateLikeMessage) error {
 	if _, err := lc.db.InsertInto(tableNameForType(lm.ObjectType)).
-		Columns(UserIdColumn, relIdColumnForType(lm.ObjectType)).
+		Columns(UserIdColumn, objectIdColumnForType(lm.ObjectType)).
 		Values(lm.User.Id, lm.Object.Identifier()).
 		Exec(); err != nil {
 		return err
@@ -136,7 +136,7 @@ func tableNameForType(likeType models.LikeObjectType) string {
 
 }
 
-func relIdColumnForType(likeType models.LikeObjectType) string {
+func objectIdColumnForType(likeType models.LikeObjectType) string {
 	switch likeType {
 	case models.LikeTypeArtist:
 		return ArtistIdColumn

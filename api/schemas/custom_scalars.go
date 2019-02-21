@@ -81,7 +81,11 @@ var DurationScalar = graphql.NewScalar(graphql.ScalarConfig{
 	ParseLiteral: func(valueAST ast.Value) interface{} {
 		switch valueAST := valueAST.(type) {
 		case *ast.IntValue:
-			return time.Duration(valueAST.GetValue().(int))
+			intVal, err := strconv.ParseInt(valueAST.Value, 0, 0)
+			if err != nil {
+				return err
+			}
+			return time.Duration(intVal)
 		default:
 			return nil
 		}

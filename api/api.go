@@ -2,51 +2,60 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/graphql-go/graphql"
 	"github.com/mnmtanish/go-graphiql"
 
 	"github.com/scottdelly/goql/api/schemas"
+	"github.com/scottdelly/goql/db_client"
 )
 
 type GQLApi struct {
 	schema graphql.Schema
 }
 
+var dBC *db_client.DBClient
+
 func (g *GQLApi) Start(host string) error {
+	log.Println("==> API Starting")
 	g.schema = g.startGQL()
 	return g.startHttp(host)
 }
 
-func (g *GQLApi) Test() {
-	// Query
-	query := `
-		{
-			hello
-		}
-	`
-	params := graphql.Params{Schema: g.schema, RequestString: query}
-	r := graphql.Do(params)
-	if len(r.Errors) > 0 {
-		log.Fatalf("failed to execute graphql operation, errors: %+v", r.Errors)
-	}
-	rJSON, _ := json.Marshal(r)
-	fmt.Printf("%s \n", rJSON) // {“data”:{“hello”:”world”}}
-}
-
 func (g *GQLApi) startHttp(host string) error {
-	http.HandleFunc("/gql", func(w http.ResponseWriter, r *http.Request) {
-		result := executeQuery(r.URL.Query().Get("query"), g.schema)
+
+	http.HandleFunc("/graphql", func(w http.ResponseWriter, r *http.Request) {
+		var query string
+		switch strings.ToLower(r.Method) {
+		case "get":
+			query = r.URL.Query().Get("query")
+		case "post":
+			decoder := json.NewDecoder(r.Body)
+			var graphQL map[string]interface{}
+			if err := decoder.Decode(&graphQL); err != nil {
+				panic(err)
+			}
+			query = string(graphQL["query"].(string))
+		}
+		result := executeQuery(query, g.schema)
 		_ = json.NewEncoder(w).Encode(result)
 	})
 	http.HandleFunc("/", graphiql.ServeGraphiQL)
 
-	fmt.Println(fmt.Sprintf("Server is running at %s", host))
+	log.Printf("==> API listening at %s", host)
 
 	return http.ListenAndServe(host, nil)
+}
+
+func SetDbClient(client *db_client.DBClient) {
+	dBC = client
+	schemas.ArtistClient = db_client.NewArtistClient(client)
+	schemas.SongClient = db_client.NewSongClient(client)
+	schemas.UserClient = db_client.NewUserClient(client)
+	schemas.LikesClient = db_client.NewLikesClient(client)
 }
 
 func (g *GQLApi) startGQL() graphql.Schema {
@@ -64,12 +73,15 @@ func (g *GQLApi) startGQL() graphql.Schema {
 		},
 	)
 
-	var muatationType = graphql.NewObject(
+	var mutationType = graphql.NewObject(
 		graphql.ObjectConfig{
 			Name: "Mutate",
 			Fields: graphql.Fields{
-				"like_artist": schemas.ArtistLikeMutation,
-				"like_song":   schemas.SongLikeMutation,
+				"create_artist": schemas.ArtistCreateMutation,
+				"create_song":   schemas.SongCreateMutation,
+				"create_user":   schemas.UserCreateMutation,
+				"like_artist":   schemas.ArtistLikeMutation,
+				"like_song":     schemas.SongLikeMutation,
 			},
 		},
 	)
@@ -77,7 +89,7 @@ func (g *GQLApi) startGQL() graphql.Schema {
 	schema, err := graphql.NewSchema(
 		graphql.SchemaConfig{
 			Query:    queryType,
-			Mutation: muatationType,
+			Mutation: mutationType,
 		},
 	)
 
@@ -94,7 +106,7 @@ func executeQuery(query string, schema graphql.Schema) *graphql.Result {
 		RequestString: query,
 	})
 	if len(result.Errors) > 0 {
-		fmt.Printf("wrong result, unexpected errors: %v\n", result.Errors)
+		log.Printf("wrong result, unexpected errors: %v\n", result.Errors)
 	}
 	return result
 }

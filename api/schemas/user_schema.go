@@ -3,17 +3,8 @@ package schemas
 import (
 	"github.com/graphql-go/graphql"
 
-	"github.com/scottdelly/goql/db_client"
 	"github.com/scottdelly/goql/models"
 )
-
-func userClient() *db_client.UserClient {
-	return db_client.NewUserClient(DBC)
-}
-
-func likesClient() *db_client.LikesClient {
-	return db_client.NewLikesClient(DBC)
-}
 
 var userType = createGQLObject("User",
 	graphql.Fields{
@@ -35,7 +26,7 @@ var UserQueryField = &graphql.Field{
 		if id, err := parseModelId(p); err != nil {
 			return nil, err
 		} else {
-			return userClient().GetUserById(id)
+			return UserClient.GetUserById(id)
 		}
 	},
 }
@@ -49,7 +40,7 @@ func userFromParams(p graphql.ResolveParams) (*models.User, error) {
 		userId = p.Source.(*models.User).Id
 	}
 	var user *models.User
-	if user, err = userClient().GetUserById(userId); err != nil {
+	if user, err = UserClient.GetUserById(userId); err != nil {
 		return nil, err
 	}
 	return user, nil
@@ -67,7 +58,7 @@ var ArtistLikeQueryField = &graphql.Field{
 		if err != nil || len(response) == 0 {
 			return nil, err
 		}
-		artists, err := artistClient().GetArtists(limit, `"id" IN $1`, response)
+		artists, err := ArtistClient.GetArtists(limit, `"id" IN $1`, response)
 		return artists, err
 	},
 }
@@ -104,7 +95,7 @@ var SongLikeQueryField = &graphql.Field{
 		if err != nil || len(response) == 0 {
 			return nil, err
 		}
-		songs, err := songClient().GetSongs(limit, `"id" IN $1`, response)
+		songs, err := SongClient.GetSongs(limit, `"id" IN $1`, response)
 		return songs, err
 	},
 }
@@ -126,5 +117,35 @@ var SongLikeMutation = &graphql.Field{
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		return createLike(p, models.LikeTypeSong)
+	},
+}
+
+var UserCreateMutation = &graphql.Field{
+	Type: mutationResponse("CreateUser",
+		graphql.Fields{
+			"user": &graphql.Field{
+				Type: userType,
+			},
+		},
+	),
+	Args: graphql.FieldConfigArgument{
+		NameField: &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"email": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+	},
+	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+		user := new(models.User)
+		user.Name = p.Args[NameField].(string)
+		user.Email = p.Args["email"].(string)
+		if err := UserClient.Create(user); err != nil {
+			return nil, graphql.NewLocatedError(err, nil)
+		}
+		return map[string]interface{}{
+			"success": true,
+			"user":    user,
+		}, nil
 	},
 }

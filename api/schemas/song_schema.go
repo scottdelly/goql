@@ -2,16 +2,12 @@ package schemas
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/graphql-go/graphql"
 
-	"github.com/scottdelly/goql/db_client"
 	"github.com/scottdelly/goql/models"
 )
-
-func songClient() *db_client.SongClient {
-	return db_client.NewSongClient(DBC)
-}
 
 var songType = createGQLObject("Song",
 	graphql.Fields{
@@ -33,7 +29,7 @@ func init() {
 		Type: artistType,
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 			artistId := p.Source.(*models.Song).ArtistId
-			return artistClient().GetArtistById(artistId)
+			return ArtistClient.GetArtistById(artistId)
 		},
 	})
 	songType.AddFieldConfig("liked_by", SongLikesField)
@@ -48,7 +44,7 @@ var SongQueryField = &graphql.Field{
 		if id, err := parseModelId(p); err != nil {
 			return nil, err
 		} else {
-			return songClient().GetSongById(id)
+			return SongClient.GetSongById(id)
 		}
 	},
 }
@@ -65,7 +61,7 @@ var SongListField = &graphql.Field{
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		if query, ok := parseQuery(p); ok {
-			return songClient().GetSongs(parseLimit(p), `"name" ilike $1`, fmt.Sprintf("%%%s%%", query))
+			return SongClient.GetSongs(parseLimit(p), `"name" ilike $1`, fmt.Sprintf("%%%s%%", query))
 		}
 		artistId := models.ModelId(-1)
 		if artist, ok := p.Source.(*models.Artist); ok {
@@ -74,9 +70,9 @@ var SongListField = &graphql.Field{
 			artistId = id
 		}
 		if artistId > -1 {
-			return songClient().GetSongs(parseLimit(p), `"artist_id" = $1`, artistId)
+			return SongClient.GetSongs(parseLimit(p), `"artist_id" = $1`, artistId)
 		} else {
-			return songClient().GetSongs(parseLimit(p), nil)
+			return SongClient.GetSongs(parseLimit(p), nil)
 		}
 	},
 }
@@ -89,5 +85,37 @@ var SongLikesField = &graphql.Field{
 	},
 	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 		return parseUsersWhoLike(p)
+	},
+}
+
+var SongCreateMutation = &graphql.Field{
+	Type: mutationResponse("CreateSong",
+		graphql.Fields{
+			"song": &graphql.Field{
+				Type: songType,
+			},
+		},
+	),
+	Args: graphql.FieldConfigArgument{
+		NameField: &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(graphql.String),
+		},
+		"artist_id": modelIDArgConfig("Artist Id"),
+		"duration": &graphql.ArgumentConfig{
+			Type: graphql.NewNonNull(DurationScalar),
+		},
+	},
+	Resolve: func(p graphql.ResolveParams) (interface{}, error) {
+		song := new(models.Song)
+		song.Name = p.Args[NameField].(string)
+		song.ArtistId = p.Args["artist_id"].(models.ModelId)
+		song.Duration = p.Args["duration"].(time.Duration)
+		if err := SongClient.Create(song); err != nil {
+			return nil, graphql.NewLocatedError(err, nil)
+		}
+		return map[string]interface{}{
+			"success": true,
+			"song":    song,
+		}, nil
 	},
 }

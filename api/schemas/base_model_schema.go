@@ -6,11 +6,8 @@ import (
 
 	"github.com/graphql-go/graphql"
 
-	"github.com/scottdelly/goql/db_client"
 	"github.com/scottdelly/goql/models"
 )
-
-var DBC *db_client.DBClient
 
 const IdField = "id"
 const NameField = "name"
@@ -63,7 +60,7 @@ func gqlCreatedField() *graphql.Field {
 
 func modelIDArgConfig(description string) *graphql.ArgumentConfig {
 	return &graphql.ArgumentConfig{
-		Type:        ModelIdScalar,
+		Type:        graphql.NewNonNull(ModelIdScalar),
 		Description: description,
 	}
 }

@@ -3,6 +3,7 @@ package schemas
 import (
 	"github.com/graphql-go/graphql"
 
+	"github.com/scottdelly/goql/db_client"
 	"github.com/scottdelly/goql/models"
 )
 
@@ -10,6 +11,11 @@ const SuccessField = "success"
 
 const LimitArg = "limit"
 const QueryArg = "query"
+
+var ArtistClient *db_client.ArtistClient
+var SongClient *db_client.SongClient
+var UserClient *db_client.UserClient
+var LikesClient *db_client.LikesClient
 
 //Limits
 func limitArgConfig() *graphql.ArgumentConfig {
@@ -62,7 +68,7 @@ func gqlLikeCountField() *graphql.Field {
 		Description: "Number of likes on the recipient",
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 			likable := p.Source.(models.Likable)
-			count, err := likesClient().LikeCount(models.LikesOn(likable))
+			count, err := LikesClient.LikeCount(models.LikesOn(likable))
 			return count, err
 		},
 	}
@@ -75,7 +81,7 @@ func parseLikesForUser(p graphql.ResolveParams, t models.LikeObjectType) ([]mode
 		return nil, err
 	}
 	var response []models.ModelId
-	if response, err = likesClient().GetLikesForUser(user.LikesOfType(t), limit); err != nil {
+	if response, err = LikesClient.GetLikesForUser(user.LikesOfType(t), limit); err != nil {
 		return nil, err
 	}
 	return response, nil
@@ -84,10 +90,10 @@ func parseLikesForUser(p graphql.ResolveParams, t models.LikeObjectType) ([]mode
 func parseUsersWhoLike(p graphql.ResolveParams) ([]*models.User, error) {
 	limit := parseLimit(p)
 	likable := p.Source.(models.Likable)
-	if userIds, err := likesClient().GetUsersByLikes(models.LikesOn(likable), limit); err != nil {
+	if userIds, err := LikesClient.GetUsersByLikes(models.LikesOn(likable), limit); err != nil {
 		return nil, err
 	} else if len(userIds) > 0 {
-		users, err := userClient().GetUsers(limit, `id IN $1`, userIds)
+		users, err := UserClient.GetUsers(limit, `id IN $1`, userIds)
 		return users, err
 	}
 	return nil, nil
@@ -110,11 +116,11 @@ func createLike(p graphql.ResolveParams, t models.LikeObjectType) (map[string]in
 
 	}
 	var likable models.Likable
-	if likable, err = likesClient().ResolveObject(objectId, t); err != nil {
+	if likable, err = LikesClient.ResolveObject(objectId, t); err != nil {
 		return nil, err
 	}
 
-	if err = likesClient().CreateUserLike(user.LikeObject(likable)); err != nil {
+	if err = LikesClient.CreateUserLike(user.LikeObject(likable)); err != nil {
 		return nil, err
 	}
 	return map[string]interface{}{
